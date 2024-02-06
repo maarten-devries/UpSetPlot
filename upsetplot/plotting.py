@@ -845,7 +845,14 @@ class UpSet:
         tick_axis.set_ticklabels(
             data.index.names, rotation=0 if self._horizontal else -90
         )
-        ax.xaxis.set_visible(False)
+        tick_axis = ax.xaxis
+        tick_axis.set_ticks(np.arange(len(data.values)))
+        tick_axis.set_ticklabels(
+            data.values, rotation=0 if self._horizontal else -90
+        )
+        # rotate x labels
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(90)
         ax.tick_params(axis="both", which="both", length=0)
         if not self._horizontal:
             ax.yaxis.set_ticks_position("top")
@@ -965,7 +972,7 @@ class UpSet:
         for x in ["top", "left", "right"]:
             ax.spines[self._reorient(x)].set_visible(False)
         ax.yaxis.set_visible(False)
-        ax.xaxis.grid(True)
+        ax.xaxis.grid(False)
         ax.yaxis.grid(False)
         ax.patch.set_visible(False)
 
@@ -992,7 +999,7 @@ class UpSet:
                 self._swapaxes(start_x, i - 0.4),
                 *self._swapaxes(end_x, 0.8),
                 facecolor=shading_style.get("facecolor", default_shading),
-                edgecolor=shading_style.get("edgecolor", None),
+                edgecolor=shading_style.get("edgecolor"),
                 ls=shading_style.get("linestyle", "-"),
                 lw=lw,
                 zorder=0,
@@ -1092,6 +1099,7 @@ class UpSet:
         if fig is None:
             fig = plt.figure(figsize=self._default_figsize)
         specs = self.make_grid(fig)
+        print("specs", specs)
         shading_ax = fig.add_subplot(specs["shading"])
         self.plot_shading(shading_ax)
         matrix_ax = self._reorient(fig.add_subplot)(specs["matrix"], sharey=shading_ax)
@@ -1102,13 +1110,15 @@ class UpSet:
             totals_ax = self._reorient(fig.add_subplot)(
                 specs["totals"], sharey=matrix_ax
             )
-            self.plot_totals(totals_ax)
-        out = {"matrix": matrix_ax, "shading": shading_ax, "totals": totals_ax}
+            # self.plot_totals(totals_ax)
+        out = {"matrix": matrix_ax, "shading": shading_ax}
 
         for plot in self._subset_plots:
+            print("plot", plot)
             ax = self._reorient(fig.add_subplot)(specs[plot["id"]], sharex=matrix_ax)
             if plot["type"] == "default":
-                self.plot_intersections(ax)
+                # self.plot_intersections(ax)
+                pass
             elif plot["type"] in self.PLOT_TYPES:
                 kw = plot.copy()
                 del kw["type"]
