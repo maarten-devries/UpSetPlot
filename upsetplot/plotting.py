@@ -863,12 +863,30 @@ class UpSet:
 
         if extra_x_axis_data is not None:
             ax2 = ax.twinx()
-            ax2.set_ylim(ax.get_ylim())
-            ax2.set_yticks(np.arange(len(extra_x_axis_data.values)))
+
+            # Assuming extra_x_axis_data.values is the list of labels you want to display on ax2
+            n_labels = len(extra_x_axis_data.values)
+
+            ylim = ax.get_ylim()
+
+            # Calculate the total height of the y-axis on ax
+            y_height = ylim[1] - ylim[0]
+
+            # Calculate the positions for the y-ticks on ax2
+            # The positions should be evenly spaced between the y-limits of ax
+            ax2_yticks = np.linspace(ylim[0] + y_height / (2 * n_labels), ylim[1] - y_height / (2 * n_labels), n_labels)
+
+            # Set the y-ticks and y-tick labels on ax2
+            ax2.set_yticks(ax2_yticks)
             ax2.set_yticklabels(extra_x_axis_data.values, rotation=0)
+
+            # Adjust the vertical alignment and font size if necessary
             for label in ax2.get_yticklabels():
-                label.set_verticalalignment('top')
+                label.set_verticalalignment('center')
                 label.set_fontsize(10)
+
+            # Make sure the limits of ax2's y-axis match the limits of ax's y-axis
+            ax2.set_ylim(ax.get_ylim())
 
 
     def plot_intersections(self, ax):
