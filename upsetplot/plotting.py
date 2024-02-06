@@ -753,10 +753,13 @@ class UpSet:
                 out[plot["id"]] = gridspec[-n_inters:, start + n_cats : stop + n_cats]
         return out
 
-    def plot_matrix(self, ax):
-        """Plot the matrix of intersection indicators onto ax"""
+    def plot_matrix(self, ax, extra_x_axis_data=None):
+        """Plot the matrix of intersection indicators onto ax.
+
+        extra_x_axis_data is used to plot additional data on the matrix, specically a second x axis.
+        """
         ax = self._reorient(ax)
-        data = self.intersections
+        data: pd.DataFrame = self.intersections
         n_cats = data.index.nlevels
 
         inclusion = data.index.to_frame().values
@@ -857,6 +860,16 @@ class UpSet:
         ax.set_frame_on(False)
         ax.set_xlim(-0.5, x[-1] + 0.5, auto=False)
         ax.grid(False)
+
+        if extra_x_axis_data is not None:
+            ax2 = ax.twinx()
+            ax2.set_ylim(ax.get_ylim())
+            ax2.set_yticks(np.arange(len(extra_x_axis_data.values)))
+            ax2.set_yticklabels(extra_x_axis_data.values, rotation=0)
+            for label in ax2.get_yticklabels():
+                label.set_verticalalignment('top')
+                label.set_fontsize(10)
+
 
     def plot_intersections(self, ax):
         """Plot bars indicating intersection size"""
@@ -1097,7 +1110,6 @@ class UpSet:
         if fig is None:
             fig = plt.figure(figsize=self._default_figsize)
         specs = self.make_grid(fig)
-        print("specs", specs)
         shading_ax = fig.add_subplot(specs["shading"])
         self.plot_shading(shading_ax)
         matrix_ax = self._reorient(fig.add_subplot)(specs["matrix"], sharey=shading_ax)
@@ -1112,7 +1124,6 @@ class UpSet:
         out = {"matrix": matrix_ax, "shading": shading_ax}
 
         for plot in self._subset_plots:
-            print("plot", plot)
             ax = self._reorient(fig.add_subplot)(specs[plot["id"]], sharex=matrix_ax)
             if plot["type"] == "default":
                 # self.plot_intersections(ax)
