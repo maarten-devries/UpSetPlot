@@ -847,9 +847,7 @@ class UpSet:
         )
         tick_axis = ax.xaxis
         tick_axis.set_ticks(np.arange(len(data.values)))
-        tick_axis.set_ticklabels(
-            data.values, rotation=0 if self._horizontal else -90
-        )
+        tick_axis.set_ticklabels(data.values, rotation=0) # 0 rotation regardless of _horizontal
         # rotate x labels
         for tick in ax.get_xticklabels():
             tick.set_rotation(90)
